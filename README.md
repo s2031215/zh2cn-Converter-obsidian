@@ -10,6 +10,9 @@
 1. 從[Releases](https://github.com/s2031215/zh2cn-Converter-obsidian/releases)把`manifest.json`, `main.js`, `styles.css`下載到本地
 2. 在obsidian vault中新增資料夾 `/.obsidian/plugins/CN-ZH-Converter-plugin/`
 3. 把下載3個的文件`manifest.json`, `main.js`, `styles.css`複製到剛剛建立的資料夾內
+4. 重新啟動Obsidian
+5. 在第三方外掛程式中啟動外掛程式 
+PS:要啟用第三方外掛程式先是要關閉「安全模式」
 
 ## Usage 使用
 TODO
