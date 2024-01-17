@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "CN-ZH-Converter-plugin",
+	"name": "繁簡轉換",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Chinese-Simplified-Traditional-Converter-plugin",
+	"author": "s2031215",
+	"authorUrl": "https://github.com/s2031215",
+	"fundingUrl": "https://github.com/s2031215",
 	"isDesktopOnly": false
 }

@@ -1,4 +1,5 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, addIcon, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import * as OpenCC from './opencc.js';
 
 // Remember to rename these classes and interfaces!
 
@@ -16,57 +17,101 @@ export default class MyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
+		addIcon("ZH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">繁</text>`);
+		addIcon("CH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">簡</text>`);
+
+		function ChineseConverter(text: string, mode: string): string {
+			if (mode == 'cn') {
+				const converter = OpenCC.Converter({ from: 'hk', to: 'cn' });
+				return converter(text);
+			} else {
+				const converter = OpenCC.Converter({ from: 'cn', to: 'hk' });
+				return converter(text);
+			}
+		}
+
+		this.registerEvent(
+			this.app.workspace.on("file-menu", (menu, file) => {
+				menu.addItem((item) => {
+					item
+						.setTitle("全文繁體轉換")
+						.setIcon("ZH_icon")
+						.onClick(async () => {
+							const noteFile = file.vault.getFiles().filter((targerfile) => targerfile.name == file.name)
+							let text = await this.app.vault.read(noteFile[0]);
+							const result: string = ChineseConverter(text, 'hk');
+							this.app.vault.modify(noteFile[0], result)
+							new Notice("文件" + file.name + "全文繁體轉換完成");
+						});
+				});
+				menu.addItem((item) => {
+					item
+						.setTitle("全文簡體轉換")
+						.setIcon("CH_icon")
+						.onClick(async () => {
+							const noteFile = file.vault.getFiles().filter((targerfile) => targerfile.name == file.name)
+							let text = await this.app.vault.read(noteFile[0]);
+							const result: string = ChineseConverter(text, 'cn');
+							this.app.vault.modify(noteFile[0], result)
+							new Notice("文件" + file.name + "全文簡體轉換完成");
+						});
+				});
+			})
+		);
+
+		this.registerEvent(
+			this.app.workspace.on("editor-menu", (menu, editor, view) => {
+				menu.addItem((item) => {
+					item
+						.setTitle("繁體轉換")
+						.onClick(async () => {
+							const result: string = ChineseConverter(editor.getSelection(), 'hk');
+							editor.replaceSelection(result);
+							new Notice("繁體轉換完成");
+						});
+				});
+				menu.addItem((item) => {
+					item
+						.setTitle("簡體轉換")
+						.onClick(async () => {
+							const result: string = ChineseConverter(editor.getSelection(), 'cn');
+							editor.replaceSelection(result);
+							new Notice("簡體轉換完成");
+						});
+				});
+			})
+		);
+
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
+		const ribbonIconEl_ZH = this.addRibbonIcon('ZH_icon', '全文繁體轉換', async (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
-
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
-
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
+			new Notice('全文轉換中');
+			const noteFile = this.app.workspace.getActiveFile();
+			console.log(noteFile)
+			if (noteFile !== null) {
+				let text = await this.app.vault.read(noteFile);
+				const result: string = ChineseConverter(text, 'hk');
+				this.app.vault.modify(noteFile, result)
+				new Notice('全文繁體轉換完成');
+			} else {
+				new Notice('全文轉換失敗，找不到文件');
 			}
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		const ribbonIconEl_CH = this.addRibbonIcon('CH_icon', '全文簡體轉換', async (evt: MouseEvent) => {
+			// Called when the user clicks the icon.
+			new Notice('全文轉換中');
+			const noteFile = this.app.workspace.getActiveFile();
+			console.log(noteFile)
+			if (noteFile !== null) {
+				let text = await this.app.vault.read(noteFile);
+				const result: string = ChineseConverter(text, 'cn');
+				this.app.vault.modify(noteFile, result)
+				new Notice('全文簡體轉換完成');
+			} else {
+				new Notice('全文轉換失敗，找不到文件');
+			}
+		});
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -88,47 +133,5 @@ export default class MyPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-	}
-}
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
 	}
 }
