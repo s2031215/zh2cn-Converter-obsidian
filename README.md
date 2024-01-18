@@ -15,7 +15,10 @@
 PS:要啟用第三方外掛程式先是要關閉「安全模式」
 
 ## Usage 使用
-TODO
+### 1. 選取文字轉換
+![Select_mode](docs/assets/select_part.gif)
+### 2. 全文轉換
+![FullText_mode](docs/assets/full_text.gif)
 
 ## Build 編譯
 TODO
