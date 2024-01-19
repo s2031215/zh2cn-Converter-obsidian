@@ -30,6 +30,17 @@ export default class MyPlugin extends Plugin {
 			}
 		}
 
+		function CheckFileType(filename: string): boolean {
+			let filetype = filename.split(".")[1] ?? null
+			if (filetype == "md") {
+				return true
+			}
+			if (filetype == "txt") {
+				return true
+			}
+			return false
+		}
+
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu, file) => {
 				menu.addItem((item) => {
@@ -37,11 +48,15 @@ export default class MyPlugin extends Plugin {
 						.setTitle("全文繁體轉換")
 						.setIcon("ZH_icon")
 						.onClick(async () => {
-							const noteFile = file.vault.getFiles().filter((targerfile) => targerfile.name == file.name)
-							let text = await this.app.vault.read(noteFile[0]);
-							const result: string = ChineseConverter(text, 'hk');
-							this.app.vault.modify(noteFile[0], result)
-							new Notice("文件" + file.name + "全文繁體轉換完成");
+							if (CheckFileType(file.name)) {
+								const noteFile = file.vault.getFiles().filter((targerfile) => targerfile.name == file.name)
+								let text = await this.app.vault.read(noteFile[0]);
+								const result: string = ChineseConverter(text, 'hk');
+								this.app.vault.modify(noteFile[0], result)
+								new Notice("全文繁體轉換完成");
+							} else {
+								new Notice("錯誤文件: " + file.name + " 不是文本格式md/txt");
+							}
 						});
 				});
 				menu.addItem((item) => {
@@ -49,11 +64,15 @@ export default class MyPlugin extends Plugin {
 						.setTitle("全文簡體轉換")
 						.setIcon("CH_icon")
 						.onClick(async () => {
-							const noteFile = file.vault.getFiles().filter((targerfile) => targerfile.name == file.name)
-							let text = await this.app.vault.read(noteFile[0]);
-							const result: string = ChineseConverter(text, 'cn');
-							this.app.vault.modify(noteFile[0], result)
-							new Notice("文件" + file.name + "全文簡體轉換完成");
+							if (CheckFileType(file.name)) {
+								const noteFile = file.vault.getFiles().filter((targerfile) => targerfile.name == file.name)
+								let text = await this.app.vault.read(noteFile[0]);
+								const result: string = ChineseConverter(text, 'cn');
+								this.app.vault.modify(noteFile[0], result)
+								new Notice("全文簡體轉換完成");
+							} else {
+								new Notice("錯誤文件: " + file.name + " 不是文本格式md/txt");
+							}
 						});
 				});
 			})
@@ -85,14 +104,16 @@ export default class MyPlugin extends Plugin {
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl_ZH = this.addRibbonIcon('ZH_icon', '全文繁體轉換', async (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new Notice('全文轉換中');
 			const noteFile = this.app.workspace.getActiveFile();
-			console.log(noteFile)
 			if (noteFile !== null) {
-				let text = await this.app.vault.read(noteFile);
-				const result: string = ChineseConverter(text, 'hk');
-				this.app.vault.modify(noteFile, result)
-				new Notice('全文繁體轉換完成');
+				if (CheckFileType(noteFile.name)) {
+					let text = await this.app.vault.read(noteFile);
+					const result: string = ChineseConverter(text, 'hk');
+					this.app.vault.modify(noteFile, result)
+					new Notice('全文繁體轉換完成');
+				} else {
+					new Notice("錯誤文件: " + noteFile.name + " 不是文本格式md/txt");
+				}
 			} else {
 				new Notice('全文轉換失敗，找不到文件');
 			}
@@ -100,14 +121,16 @@ export default class MyPlugin extends Plugin {
 
 		const ribbonIconEl_CH = this.addRibbonIcon('CH_icon', '全文簡體轉換', async (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new Notice('全文轉換中');
 			const noteFile = this.app.workspace.getActiveFile();
-			console.log(noteFile)
 			if (noteFile !== null) {
-				let text = await this.app.vault.read(noteFile);
-				const result: string = ChineseConverter(text, 'cn');
-				this.app.vault.modify(noteFile, result)
-				new Notice('全文簡體轉換完成');
+				if (CheckFileType(noteFile.name)) {
+					let text = await this.app.vault.read(noteFile);
+					const result: string = ChineseConverter(text, 'cn');
+					this.app.vault.modify(noteFile, result)
+					new Notice('全文簡體轉換完成');
+				} else {
+					new Notice("錯誤文件: " + noteFile.name + " 不是文本格式md/txt");
+				}
 			} else {
 				new Notice('全文轉換失敗，找不到文件');
 			}
