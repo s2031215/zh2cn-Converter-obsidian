@@ -10,7 +10,7 @@ A Obsidian plugin to Convert between Simplified Chinese and Traditional Chinese
 
 ## Installation 安裝
 1. 從[Releases](https://github.com/s2031215/zh2cn-Converter-obsidian/releases)把`manifest.json`, `main.js`, `styles.css`下載到本地
-2. 在obsidian vault中新增資料夾 `/.obsidian/plugins/CN-ZH-Converter-plugin/`
+2. 在obsidian vault中新增資料夾 `/.obsidian/plugins/chinese-cn2zh-converter-plugin/`
 3. 把下載3個的文件`manifest.json`, `main.js`, `styles.css`複製到剛剛建立的資料夾內
 4. 重新啟動Obsidian
 5. 在第三方外掛程式中啟動外掛程式 
@@ -24,7 +24,7 @@ PS:要啟用第三方外掛程式請先關閉「安全模式」
 ![FullText_mode](docs/assets/full_text.gif)
 
 ## Build 編譯
-1. 在obsidian vault中新增資料夾 `/.obsidian/plugins/CN-ZH-Converter-plugin/`
+1. 在obsidian vault中新增資料夾 `/.obsidian/plugins/chinese-cn2zh-converter-plugin/`
 2. 在剛剛建立的資料夾內克隆(clone)本專案 `git clone https://github.com/s2031215/zh2cn-Converter-obsidian.git`
 3. 在這個專案中執行 `npm install` 和 `npm run dev` 編譯插件
 4. 重新啟動Obsidian，點選第三方套外掛程式，就可以看到你剛剛編譯的插件
