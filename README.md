@@ -1,4 +1,4 @@
-# Obsidian 繁簡轉換插件(CN-ZH-Converter-plugin)
+# Obsidian 繁簡轉換插件(chinese-cn2zh-converter-plugin)
 
 基於OpenCC的Obsidian繁簡轉換插件
 
