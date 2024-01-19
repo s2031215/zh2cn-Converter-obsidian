@@ -1,6 +1,7 @@
 # Obsidian 繁簡轉換插件(CN-ZH-Converter-plugin)
 
 基於OpenCC的Obsidian繁簡轉換插件
+
 A Obsidian plugin to Convert between Simplified Chinese and Traditional Chinese 
 
 ## Features 特點

@@ -1,5 +1,5 @@
 {
-	"id": "CN-ZH-Converter-plugin",
+	"id": "chinese-cn2zh-converter-plugin",
 	"name": "繁簡轉換",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
