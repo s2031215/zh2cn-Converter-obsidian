@@ -1,7 +1,7 @@
 {
 	"id": "chinese-cn2zh-converter-plugin",
 	"name": "繁簡轉換",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "Chinese-Simplified-Traditional-Converter-plugin",
 	"author": "s2031215",
