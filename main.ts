@@ -18,7 +18,27 @@ export default class MyPlugin extends Plugin {
 		await this.loadSettings();
 
 		addIcon("ZH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">繁</text>`);
-		addIcon("CH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">簡</text>`);
+		addIcon("CH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">简</text>`);
+
+		async function getobfile(app: App, filename: string, mode: string) {
+			try {
+				const noteFile = app.vault.getFiles().filter((targerfile: { name: string; }) => targerfile.name == filename)[0] ?? app.workspace.getActiveFile();
+				if (noteFile == null) {
+					throw new Error('找不到文件!')
+				}
+				if (!CheckFileType(noteFile.name)) {
+					throw new Error(noteFile.name + " 不是文本格式md/txt")
+				}
+				let text = await app.vault.read(noteFile);
+				const result: string = ChineseConverter(text, mode);
+				app.vault.modify(noteFile, result)
+				new Notice('全文轉換完成');
+			}
+			catch (e) {
+				console.log((e as Error).message);
+				new Notice('全文轉換失敗: ' + e.message);
+			}
+		}
 
 		function ChineseConverter(text: string, mode: string): string {
 			if (mode == 'cn') {
@@ -48,31 +68,15 @@ export default class MyPlugin extends Plugin {
 						.setTitle("全文繁體轉換")
 						.setIcon("ZH_icon")
 						.onClick(async () => {
-							if (CheckFileType(file.name)) {
-								const noteFile = file.vault.getFiles().filter((targerfile) => targerfile.name == file.name)
-								let text = await this.app.vault.read(noteFile[0]);
-								const result: string = ChineseConverter(text, 'hk');
-								this.app.vault.modify(noteFile[0], result)
-								new Notice("全文繁體轉換完成");
-							} else {
-								new Notice("錯誤文件: " + file.name + " 不是文本格式md/txt");
-							}
+							getobfile(this.app, file.name, 'zh')
 						});
 				});
 				menu.addItem((item) => {
 					item
-						.setTitle("全文簡體轉換")
+						.setTitle("全文简体转换")
 						.setIcon("CH_icon")
 						.onClick(async () => {
-							if (CheckFileType(file.name)) {
-								const noteFile = file.vault.getFiles().filter((targerfile) => targerfile.name == file.name)
-								let text = await this.app.vault.read(noteFile[0]);
-								const result: string = ChineseConverter(text, 'cn');
-								this.app.vault.modify(noteFile[0], result)
-								new Notice("全文簡體轉換完成");
-							} else {
-								new Notice("錯誤文件: " + file.name + " 不是文本格式md/txt");
-							}
+							getobfile(this.app, file.name, 'cn')
 						});
 				});
 			})
@@ -91,11 +95,11 @@ export default class MyPlugin extends Plugin {
 				});
 				menu.addItem((item) => {
 					item
-						.setTitle("簡體轉換")
+						.setTitle("简体转换")
 						.onClick(async () => {
 							const result: string = ChineseConverter(editor.getSelection(), 'cn');
 							editor.replaceSelection(result);
-							new Notice("簡體轉換完成");
+							new Notice("简体转换完成");
 						});
 				});
 			})
@@ -104,36 +108,12 @@ export default class MyPlugin extends Plugin {
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl_ZH = this.addRibbonIcon('ZH_icon', '全文繁體轉換', async (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			const noteFile = this.app.workspace.getActiveFile();
-			if (noteFile !== null) {
-				if (CheckFileType(noteFile.name)) {
-					let text = await this.app.vault.read(noteFile);
-					const result: string = ChineseConverter(text, 'hk');
-					this.app.vault.modify(noteFile, result)
-					new Notice('全文繁體轉換完成');
-				} else {
-					new Notice("錯誤文件: " + noteFile.name + " 不是文本格式md/txt");
-				}
-			} else {
-				new Notice('全文轉換失敗，找不到文件');
-			}
+			getobfile(this.app, "", 'zh')
 		});
 
-		const ribbonIconEl_CH = this.addRibbonIcon('CH_icon', '全文簡體轉換', async (evt: MouseEvent) => {
+		const ribbonIconEl_CH = this.addRibbonIcon('CH_icon', '全文简体转换', async (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			const noteFile = this.app.workspace.getActiveFile();
-			if (noteFile !== null) {
-				if (CheckFileType(noteFile.name)) {
-					let text = await this.app.vault.read(noteFile);
-					const result: string = ChineseConverter(text, 'cn');
-					this.app.vault.modify(noteFile, result)
-					new Notice('全文簡體轉換完成');
-				} else {
-					new Notice("錯誤文件: " + noteFile.name + " 不是文本格式md/txt");
-				}
-			} else {
-				new Notice('全文轉換失敗，找不到文件');
-			}
+			getobfile(this.app, "", 'cn')
 		});
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
