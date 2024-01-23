@@ -28,17 +28,32 @@ export default class ChineseConverterPlugin extends Plugin {
 	 * @param {string} mode
 	 */
 	ChineseConverter(input_text: string, mode: string): string {
-		let output: string = "";
+		try {
+			let output: string = "";
 
-		if (mode == 'cn') {
-			const converter = OpenCC.Converter({ from: 'hk', to: 'cn' });
-			output = converter(input_text);
-		} else {
-			const converter = OpenCC.Converter({ from: 'cn', to: 'hk' });
-			output = converter(input_text);
+			if (mode == 'cn') {
+				const converter = OpenCC.Converter({ from: 'hk', to: 'cn' });
+				output = converter(input_text);
+			} else {
+				const converter = OpenCC.Converter({ from: 'cn', to: 'hk' });
+				output = converter(input_text);
+			}
+
+			//restore some word for file name should now be Converter
+			const re = /\!\[\[(.*)\]\]/g
+			let match;
+			while ((match = re.exec(output)) != null) {
+				//console.log(match[0] + " match found at " + match.index);
+				output = output.replace(match[0], input_text.substring(match.index, match.index + match[0].length));
+			}
+			return output
+
 		}
+		catch (e) {
+			new Notice('轉換失敗: ' + e.message);
+			return input_text
 
-		return output
+		}
 	}
 
 	/**
@@ -59,8 +74,12 @@ export default class ChineseConverterPlugin extends Plugin {
 			}
 			let text = await this.app.vault.read(noteFile);
 			const result: string = this.ChineseConverter(text, mode);
-			app.vault.modify(noteFile, result)
-			new Notice('全文轉換完成');
+			this.app.vault.modify(noteFile, result)
+			if(mode=="zh"){
+				new Notice('全文繁體轉換完成');
+			}else{
+				new Notice('全文简体转换完成');
+			}
 		}
 		catch (e) {
 			console.log((e as Error).message);
