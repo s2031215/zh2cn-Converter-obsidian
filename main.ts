@@ -3,53 +3,75 @@ import * as OpenCC from './opencc.js';
 
 export default class ChineseConverterPlugin extends Plugin {
 
+	/**
+	 * This function returns true if current file type is md or txt 
+	 *
+	 * @public
+	 * @param {string} filename
+	 */
+	CheckFileType(filename: string): boolean {
+		let filetype = filename.split(".")[1] ?? null
+		if (filetype == "md") {
+			return true
+		}
+		if (filetype == "txt") {
+			return true
+		}
+		return false
+	}
+
+	/**
+	 * This function will reture Converted Chinese in cn or zh mode 
+	 *
+	 * @public
+	 * @param {string} input_text
+	 * @param {string} mode
+	 */
+	ChineseConverter(input_text: string, mode: string): string {
+		let output: string = "";
+
+		if (mode == 'cn') {
+			const converter = OpenCC.Converter({ from: 'hk', to: 'cn' });
+			output = converter(input_text);
+		} else {
+			const converter = OpenCC.Converter({ from: 'cn', to: 'hk' });
+			output = converter(input_text);
+		}
+
+		return output
+	}
+
+	/**
+	 * This function Read the target md file and ChineseConverter, if no define filename, it will get the getActiveFile
+	 *
+	 * @public
+	 * @param {string} filename
+	 * @param {string} mode
+	 */
+	async ConvertFile(filename: string, mode: string) {
+		try {
+			const noteFile = this.app.vault.getFiles().filter((targerfile: { name: string; }) => targerfile.name == filename)[0] ?? this.app.workspace.getActiveFile();
+			if (noteFile == null) {
+				throw new Error('找不到文件!')
+			}
+			if (!this.CheckFileType(noteFile.name)) {
+				throw new Error(noteFile.name + " 不是文本格式md/txt")
+			}
+			let text = await this.app.vault.read(noteFile);
+			const result: string = this.ChineseConverter(text, mode);
+			app.vault.modify(noteFile, result)
+			new Notice('全文轉換完成');
+		}
+		catch (e) {
+			console.log((e as Error).message);
+			new Notice('全文轉換失敗: ' + e.message);
+		}
+	}
+
 	async onload() {
 
 		addIcon("ZH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">繁</text>`);
 		addIcon("CH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">简</text>`);
-
-		//Read the target md file for ChineseConverter, if no define filename, it will get the getActiveFile
-		async function getobfile(app: App, filename: string, mode: string) {
-			try {
-				const noteFile = app.vault.getFiles().filter((targerfile: { name: string; }) => targerfile.name == filename)[0] ?? app.workspace.getActiveFile();
-				if (noteFile == null) {
-					throw new Error('找不到文件!')
-				}
-				if (!CheckFileType(noteFile.name)) {
-					throw new Error(noteFile.name + " 不是文本格式md/txt")
-				}
-				let text = await app.vault.read(noteFile);
-				const result: string = ChineseConverter(text, mode);
-				app.vault.modify(noteFile, result)
-				new Notice('全文轉換完成');
-			}
-			catch (e) {
-				console.log((e as Error).message);
-				new Notice('全文轉換失敗: ' + e.message);
-			}
-		}
-
-		function ChineseConverter(text: string, mode: string): string {
-			if (mode == 'cn') {
-				const converter = OpenCC.Converter({ from: 'hk', to: 'cn' });
-				return converter(text);
-			} else {
-				const converter = OpenCC.Converter({ from: 'cn', to: 'hk' });
-				return converter(text);
-			}
-		}
-
-		//Check the file type only allow md and txt file
-		function CheckFileType(filename: string): boolean {
-			let filetype = filename.split(".")[1] ?? null
-			if (filetype == "md") {
-				return true
-			}
-			if (filetype == "txt") {
-				return true
-			}
-			return false
-		}
 
 		// This creates an option in the on top right menu on an editor.
 		this.registerEvent(
@@ -59,7 +81,7 @@ export default class ChineseConverterPlugin extends Plugin {
 						.setTitle("全文繁體轉換")
 						.setIcon("ZH_icon")
 						.onClick(async () => {
-							getobfile(this.app, file.name, 'zh')
+							this.ConvertFile(file.name, 'zh')
 						});
 				});
 				menu.addItem((item) => {
@@ -67,7 +89,7 @@ export default class ChineseConverterPlugin extends Plugin {
 						.setTitle("全文简体转换")
 						.setIcon("CH_icon")
 						.onClick(async () => {
-							getobfile(this.app, file.name, 'cn')
+							this.ConvertFile(file.name, 'cn')
 						});
 				});
 			})
@@ -80,7 +102,7 @@ export default class ChineseConverterPlugin extends Plugin {
 					item
 						.setTitle("繁體轉換")
 						.onClick(async () => {
-							const result: string = ChineseConverter(editor.getSelection(), 'hk');
+							const result: string = this.ChineseConverter(editor.getSelection(), 'hk');
 							editor.replaceSelection(result);
 							new Notice("繁體轉換完成");
 						});
@@ -89,7 +111,7 @@ export default class ChineseConverterPlugin extends Plugin {
 					item
 						.setTitle("简体转换")
 						.onClick(async () => {
-							const result: string = ChineseConverter(editor.getSelection(), 'cn');
+							const result: string = this.ChineseConverter(editor.getSelection(), 'cn');
 							editor.replaceSelection(result);
 							new Notice("简体转换完成");
 						});
@@ -100,12 +122,12 @@ export default class ChineseConverterPlugin extends Plugin {
 		// This creates an icon in the left ribbon.
 		this.addRibbonIcon('ZH_icon', '全文繁體轉換', async (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			getobfile(this.app, "", 'zh')
+			this.ConvertFile("", 'zh')
 		});
 
 		this.addRibbonIcon('CH_icon', '全文简体转换', async (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			getobfile(this.app, "", 'cn')
+			this.ConvertFile("", 'cn')
 		});
 
 		// initialise global command for convert-to-zh
@@ -113,7 +135,7 @@ export default class ChineseConverterPlugin extends Plugin {
 			id: "convert-to-zh",
 			name: "選取文字轉換繁體 convert-to-zh ",
 			editorCallback: (editor: Editor) => {
-				const result: string = ChineseConverter(editor.getSelection(), 'hk');
+				const result: string = this.ChineseConverter(editor.getSelection(), 'hk');
 				editor.replaceSelection(result);
 				new Notice("繁體轉換完成");
 			},
@@ -124,7 +146,7 @@ export default class ChineseConverterPlugin extends Plugin {
 			id: "convert-to-cn",
 			name: "選取文字轉換简体 convert-to-cn ",
 			editorCallback: (editor: Editor) => {
-				const result: string = ChineseConverter(editor.getSelection(), 'cn');
+				const result: string = this.ChineseConverter(editor.getSelection(), 'cn');
 				editor.replaceSelection(result);
 				new Notice("简体轉換完成");
 			},
@@ -134,7 +156,7 @@ export default class ChineseConverterPlugin extends Plugin {
 			id: "full-convert-to-zh",
 			name: "全文繁體轉換 full-convert-to-zh",
 			callback: () => {
-				getobfile(this.app, "", 'zh');
+				this.ConvertFile("", 'zh');
 			},
 		});
 
@@ -142,7 +164,7 @@ export default class ChineseConverterPlugin extends Plugin {
 			id: "full-convert-to-cn",
 			name: "全文简体转换 full-convert-to-cn",
 			callback: () => {
-				getobfile(this.app, "", 'cn');
+				this.ConvertFile("", 'cn');
 			},
 		});
 
