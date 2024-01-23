@@ -1,4 +1,4 @@
-import { App, addIcon, Notice, Plugin } from 'obsidian';
+import { App, addIcon, Editor, Notice, Plugin } from 'obsidian';
 import * as OpenCC from './opencc.js';
 
 export default class ChineseConverterPlugin extends Plugin {
@@ -106,6 +106,44 @@ export default class ChineseConverterPlugin extends Plugin {
 		this.addRibbonIcon('CH_icon', '全文简体转换', async (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
 			getobfile(this.app, "", 'cn')
+		});
+
+		// initialise global command for convert-to-zh
+		this.addCommand({
+			id: "convert-to-zh",
+			name: "選取文字轉換繁體 convert-to-zh ",
+			editorCallback: (editor: Editor) => {
+				const result: string = ChineseConverter(editor.getSelection(), 'hk');
+				editor.replaceSelection(result);
+				new Notice("繁體轉換完成");
+			},
+		});
+
+		// initialise global command for convert-to-cn
+		this.addCommand({
+			id: "convert-to-cn",
+			name: "選取文字轉換简体 convert-to-cn ",
+			editorCallback: (editor: Editor) => {
+				const result: string = ChineseConverter(editor.getSelection(), 'cn');
+				editor.replaceSelection(result);
+				new Notice("简体轉換完成");
+			},
+		});
+
+		this.addCommand({
+			id: "full-convert-to-zh",
+			name: "全文繁體轉換 full-convert-to-zh",
+			callback: () => {
+				getobfile(this.app, "", 'zh');
+			},
+		});
+
+		this.addCommand({
+			id: "full-convert-to-cn",
+			name: "全文简体转换 full-convert-to-cn",
+			callback: () => {
+				getobfile(this.app, "", 'cn');
+			},
 		});
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
