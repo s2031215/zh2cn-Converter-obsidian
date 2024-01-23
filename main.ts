@@ -1,21 +1,9 @@
-import { App, addIcon, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, addIcon, Notice, Plugin } from 'obsidian';
 import * as OpenCC from './opencc.js';
 
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
-
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class ChineseConverterPlugin extends Plugin {
 
 	async onload() {
-		await this.loadSettings();
 
 		addIcon("ZH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">繁</text>`);
 		addIcon("CH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">简</text>`);
@@ -128,17 +116,7 @@ export default class MyPlugin extends Plugin {
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-	}
 
-	onunload() {
 
-	}
-
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
 	}
 }
