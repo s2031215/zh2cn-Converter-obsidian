@@ -20,6 +20,7 @@ export default class MyPlugin extends Plugin {
 		addIcon("ZH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">繁</text>`);
 		addIcon("CH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">简</text>`);
 
+		//Read the target md file for ChineseConverter, if no define filename, it will get the getActiveFile
 		async function getobfile(app: App, filename: string, mode: string) {
 			try {
 				const noteFile = app.vault.getFiles().filter((targerfile: { name: string; }) => targerfile.name == filename)[0] ?? app.workspace.getActiveFile();
@@ -50,6 +51,7 @@ export default class MyPlugin extends Plugin {
 			}
 		}
 
+		//Check the file type only allow md and txt file
 		function CheckFileType(filename: string): boolean {
 			let filetype = filename.split(".")[1] ?? null
 			if (filetype == "md") {
@@ -61,6 +63,7 @@ export default class MyPlugin extends Plugin {
 			return false
 		}
 
+		// This creates an option in the on top right menu on an editor.
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu, file) => {
 				menu.addItem((item) => {
@@ -82,6 +85,7 @@ export default class MyPlugin extends Plugin {
 			})
 		);
 
+		// This creates an selection in the right click menu on editor.
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor, view) => {
 				menu.addItem((item) => {
