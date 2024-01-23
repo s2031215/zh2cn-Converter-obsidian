@@ -106,12 +106,12 @@ export default class MyPlugin extends Plugin {
 		);
 
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl_ZH = this.addRibbonIcon('ZH_icon', '全文繁體轉換', async (evt: MouseEvent) => {
+		this.addRibbonIcon('ZH_icon', '全文繁體轉換', async (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
 			getobfile(this.app, "", 'zh')
 		});
 
-		const ribbonIconEl_CH = this.addRibbonIcon('CH_icon', '全文简体转换', async (evt: MouseEvent) => {
+		this.addRibbonIcon('CH_icon', '全文简体转换', async (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
 			getobfile(this.app, "", 'cn')
 		});
