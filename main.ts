@@ -4,7 +4,7 @@ import * as OpenCC from './opencc.js';
 export default class ChineseConverterPlugin extends Plugin {
 
 	/**
-	 * This function returns true if current file type is md or txt 
+	 * This function returns true if input file type is md or txt 
 	 *
 	 * @public
 	 * @param {string} filename
@@ -21,7 +21,7 @@ export default class ChineseConverterPlugin extends Plugin {
 	}
 
 	/**
-	 * This function will reture Converted Chinese in cn or zh mode 
+	 * This function will reture Converted Chinese string in cn or zh mode 
 	 *
 	 * @public
 	 * @param {string} input_text
@@ -39,7 +39,7 @@ export default class ChineseConverterPlugin extends Plugin {
 				output = converter(input_text);
 			}
 
-			//restore some word for file name should now be Converter
+			//Restore the word for should not be Converter e.g linked filename
 			const re = /\!\[\[(.*)\]\]/g
 			let match;
 			while ((match = re.exec(output)) != null) {
@@ -57,7 +57,7 @@ export default class ChineseConverterPlugin extends Plugin {
 	}
 
 	/**
-	 * This function Read the target md file and ChineseConverter, if no define filename, it will get the getActiveFile
+	 * This function Read the text file and convent to Chinese, if filename is not define, it will get the getActiveFile
 	 *
 	 * @public
 	 * @param {string} filename
@@ -149,9 +149,9 @@ export default class ChineseConverterPlugin extends Plugin {
 			this.ConvertFile("", 'cn')
 		});
 
-		// initialise global command for convert-to-zh
+		// initialise global command for convert-select-to-zh
 		this.addCommand({
-			id: "convert-to-zh",
+			id: "convert-select-to-zh",
 			name: "選取文字轉換繁體 convert-to-zh ",
 			editorCallback: (editor: Editor) => {
 				const result: string = this.ChineseConverter(editor.getSelection(), 'hk');
@@ -160,9 +160,9 @@ export default class ChineseConverterPlugin extends Plugin {
 			},
 		});
 
-		// initialise global command for convert-to-cn
+		// initialise global command for convert-select-to-cn
 		this.addCommand({
-			id: "convert-to-cn",
+			id: "convert-select-to-cn",
 			name: "選取文字轉換简体 convert-to-cn ",
 			editorCallback: (editor: Editor) => {
 				const result: string = this.ChineseConverter(editor.getSelection(), 'cn');
@@ -171,16 +171,18 @@ export default class ChineseConverterPlugin extends Plugin {
 			},
 		});
 
+		// initialise global command for convert-file-to-cn
 		this.addCommand({
-			id: "full-convert-to-zh",
+			id: "convert-file-to-zh",
 			name: "全文繁體轉換 full-convert-to-zh",
 			callback: () => {
 				this.ConvertFile("", 'zh');
 			},
 		});
 
+		// initialise global command for convert-file-to-cn
 		this.addCommand({
-			id: "full-convert-to-cn",
+			id: "convert-file-to-cn",
 			name: "全文简体转换 full-convert-to-cn",
 			callback: () => {
 				this.ConvertFile("", 'cn');
