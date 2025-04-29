@@ -1,7 +1,22 @@
 import { App, addIcon, Editor, Notice, Plugin } from 'obsidian';
 import * as OpenCC from './opencc.js';
+import { SettingTab } from "./settings";
+
+// Plugin data for customized word setting
+interface PluginSettings {
+	country: string;
+	customWord: string;
+
+}
+
+const DEFAULT_SETTINGS: Partial<PluginSettings> = {
+	country: "hk",
+	customWord: "",
+};
 
 export default class ChineseConverterPlugin extends Plugin {
+
+	settings: PluginSettings;
 
 	/**
 	 * This function returns true if input file type is md or txt 
@@ -31,11 +46,25 @@ export default class ChineseConverterPlugin extends Plugin {
 		try {
 			let output: string = "";
 
+			//Customized word Convert
+			let customlist = this.settings.customWord.split("|").map(function (e) {
+				if (mode == 'cn') {
+					return e.split(" ").map(String).reverse();
+				} else {
+					return e.split(" ").map(String);
+				}
+			})
+
+			console.log(customlist)
+			const customConverter = OpenCC.CustomConverter(customlist);
+			input_text = customConverter(input_text);
+
+			//Normal Convert
 			if (mode == 'cn') {
-				const converter = OpenCC.Converter({ from: 'hk', to: 'cn' });
+				const converter = OpenCC.Converter({ from: this.settings.country, to: 'cn' });
 				output = converter(input_text);
 			} else {
-				const converter = OpenCC.Converter({ from: 'cn', to: 'hk' });
+				const converter = OpenCC.Converter({ from: 'cn', to: this.settings.country });
 				output = converter(input_text);
 			}
 
@@ -75,9 +104,9 @@ export default class ChineseConverterPlugin extends Plugin {
 			let text = await this.app.vault.read(noteFile);
 			const result: string = this.ChineseConverter(text, mode);
 			this.app.vault.modify(noteFile, result)
-			if(mode=="zh"){
+			if (mode == "zh") {
 				new Notice('全文繁體轉換完成');
-			}else{
+			} else {
 				new Notice('全文简体转换完成');
 			}
 		}
@@ -88,6 +117,9 @@ export default class ChineseConverterPlugin extends Plugin {
 	}
 
 	async onload() {
+
+		await this.loadSettings();
+		this.addSettingTab(new SettingTab(this.app, this));
 
 		addIcon("ZH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">繁</text>`);
 		addIcon("CH_icon", `<text x="5" y="75" font-size="90" fill="currentColor">简</text>`);
@@ -121,7 +153,7 @@ export default class ChineseConverterPlugin extends Plugin {
 					item
 						.setTitle("繁體轉換")
 						.onClick(async () => {
-							const result: string = this.ChineseConverter(editor.getSelection(), 'hk');
+							const result: string = this.ChineseConverter(editor.getSelection(), this.settings.country);
 							editor.replaceSelection(result);
 							new Notice("繁體轉換完成");
 						});
@@ -154,7 +186,7 @@ export default class ChineseConverterPlugin extends Plugin {
 			id: "convert-select-to-zh",
 			name: "選取文字轉換繁體 convert-to-zh ",
 			editorCallback: (editor: Editor) => {
-				const result: string = this.ChineseConverter(editor.getSelection(), 'hk');
+				const result: string = this.ChineseConverter(editor.getSelection(), this.settings.country);
 				editor.replaceSelection(result);
 				new Notice("繁體轉換完成");
 			},
@@ -199,5 +231,13 @@ export default class ChineseConverterPlugin extends Plugin {
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 
 
+	}
+
+	async loadSettings() {
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
 	}
 }
