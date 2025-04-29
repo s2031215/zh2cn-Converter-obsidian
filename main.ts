@@ -11,7 +11,7 @@ interface PluginSettings {
 
 const DEFAULT_SETTINGS: Partial<PluginSettings> = {
 	country: "hk",
-	customWord: "",
+	customWord: "简 簡|猫 貓",
 };
 
 export default class ChineseConverterPlugin extends Plugin {
