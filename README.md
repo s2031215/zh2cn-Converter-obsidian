@@ -12,6 +12,7 @@ A Obsidian plugin to Convert between Simplified Chinese and Traditional Chinese
 ## Features 特點
 - 支援選取文字/全文轉換
 - 本地離線轉換，沒API使用限制
+- 可自訂轉換詞彙
 
 ## Installation 安裝
 1. 從[Releases](https://github.com/s2031215/zh2cn-Converter-obsidian/releases)把`manifest.json`, `main.js`, `styles.css`下載到本地
