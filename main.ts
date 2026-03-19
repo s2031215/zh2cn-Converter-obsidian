@@ -1,12 +1,11 @@
 import { App, addIcon, Editor, Notice, Plugin } from 'obsidian';
-import * as OpenCC from './opencc.js';
+import * as OpenCC from "js-opencc";
 import { SettingTab } from "./settings";
 
 // Plugin data for customized word setting
 interface PluginSettings {
-	country: string;
+	country: OpenCC.LocaleCode;
 	customWord: string;
-
 }
 
 const DEFAULT_SETTINGS: Partial<PluginSettings> = {
@@ -42,7 +41,7 @@ export default class ChineseConverterPlugin extends Plugin {
 	 * @param {string} input_text
 	 * @param {string} mode
 	 */
-	ChineseConverter(input_text: string, mode: string): string {
+	async ChineseConverter(input_text: string, mode: string): Promise<string> {
 		try {
 			let output: string = "";
 
@@ -61,11 +60,17 @@ export default class ChineseConverterPlugin extends Plugin {
 
 			//Normal Convert
 			if (mode == 'cn') {
-				const converter = OpenCC.Converter({ from: this.settings.country, to: 'cn' });
-				output = converter(input_text);
+				const converter = await OpenCC.createConverter({ 
+					from: this.settings.country, 
+					to: 'cn'
+				});
+				output = await converter(input_text);
 			} else {
-				const converter = OpenCC.Converter({ from: 'cn', to: this.settings.country });
-				output = converter(input_text);
+				const converter = await OpenCC.createConverter({ 
+					from: 'cn', 
+					to: this.settings.country
+				});
+				output = await converter(input_text);
 			}
 
 			//Restore the word for should not be Converter e.g linked filename
@@ -102,7 +107,7 @@ export default class ChineseConverterPlugin extends Plugin {
 				throw new Error(noteFile.name + " 不是文本格式md/txt")
 			}
 			let text = await this.app.vault.read(noteFile);
-			const result: string = this.ChineseConverter(text, mode);
+			const result: string = await this.ChineseConverter(text, mode);
 			this.app.vault.modify(noteFile, result)
 			if (mode == "zh") {
 				new Notice('全文繁體轉換完成');
@@ -153,7 +158,7 @@ export default class ChineseConverterPlugin extends Plugin {
 					item
 						.setTitle("繁體轉換")
 						.onClick(async () => {
-							const result: string = this.ChineseConverter(editor.getSelection(), this.settings.country);
+							const result: string = await this.ChineseConverter(editor.getSelection(), this.settings.country);
 							editor.replaceSelection(result);
 							new Notice("繁體轉換完成");
 						});
@@ -162,7 +167,7 @@ export default class ChineseConverterPlugin extends Plugin {
 					item
 						.setTitle("简体转换")
 						.onClick(async () => {
-							const result: string = this.ChineseConverter(editor.getSelection(), 'cn');
+							const result: string = await this.ChineseConverter(editor.getSelection(), 'cn');
 							editor.replaceSelection(result);
 							new Notice("简体转换完成");
 						});
@@ -185,8 +190,8 @@ export default class ChineseConverterPlugin extends Plugin {
 		this.addCommand({
 			id: "convert-select-to-zh",
 			name: "選取文字轉換繁體 convert-to-zh ",
-			editorCallback: (editor: Editor) => {
-				const result: string = this.ChineseConverter(editor.getSelection(), this.settings.country);
+			editorCallback: async (editor: Editor) => {
+				const result: string = await this.ChineseConverter(editor.getSelection(), this.settings.country);
 				editor.replaceSelection(result);
 				new Notice("繁體轉換完成");
 			},
@@ -196,8 +201,8 @@ export default class ChineseConverterPlugin extends Plugin {
 		this.addCommand({
 			id: "convert-select-to-cn",
 			name: "選取文字轉換简体 convert-to-cn ",
-			editorCallback: (editor: Editor) => {
-				const result: string = this.ChineseConverter(editor.getSelection(), 'cn');
+			editorCallback: async (editor: Editor) => {
+				const result: string = await this.ChineseConverter(editor.getSelection(), 'cn');
 				editor.replaceSelection(result);
 				new Notice("简体轉換完成");
 			},

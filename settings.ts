@@ -1,6 +1,6 @@
 import ChineseConverterPlugin from "./main";
 import { App, PluginSettingTab, Setting } from "obsidian";
-
+import * as OpenCC from "js-opencc";
 //initialise Setting Page for 異體字轉換 and 自訂轉換詞彙 function
 export class SettingTab extends PluginSettingTab {
     plugin: ChineseConverterPlugin;
@@ -24,7 +24,7 @@ export class SettingTab extends PluginSettingTab {
                 .addOption('twp', '臺灣(tw)')
                 .addOption('hk', '香港(hk)')
                 .setValue(this.plugin.settings.country)
-                .onChange((value) => {
+                .onChange((value: OpenCC.LocaleCode) => {
                     this.plugin.settings.country = value;
                     this.plugin.saveSettings();
                 })
