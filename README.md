@@ -15,6 +15,13 @@ A Obsidian plugin to Convert between Simplified Chinese and Traditional Chinese
 - 可自訂轉換詞彙
 
 ## Installation 安裝
+
+BRAT 插件安裝(推薦)
+1. 打開 obsidian → 設置 ⚙️ → 第三方外掛程式 → 社區外掛程式市場，搜索 BRAT 安裝BRAT外掛程式
+2. 打開 BRAT 外掛程式，找到Beta Plugin List，按 Add Beta plugin
+3. 輸入 URL: https://github.com/s2031215/zh2cn-Converter-obsidian 後按Add plugin 安裝
+
+手動安裝
 1. 從[Releases](https://github.com/s2031215/zh2cn-Converter-obsidian/releases)把`manifest.json`, `main.js`, `styles.css`下載到本地
 2. 在obsidian vault中新增資料夾 `/.obsidian/plugins/chinese-cn2zh-converter-plugin/`
 3. 把下載3個的文件`manifest.json`, `main.js`, `styles.css`複製到剛剛建立的資料夾內
@@ -40,3 +47,4 @@ PS:要啟用第三方外掛程式請先關閉「安全模式」
 
 ## Third Party Library 第三方庫
  - [OpenCC](https://github.com/BYVoid/OpenCC) Apache License 2.0
+ - [js-opencc](https://github.com/rockbenben/js-opencc) Apache License 2.0
