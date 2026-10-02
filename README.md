@@ -3,6 +3,7 @@
 [![GitHub tag](https://img.shields.io/github/tag/s2031215/zh2cn-Converter-obsidian?include_prereleases=&sort=semver&color=blue)](https://github.com/s2031215/zh2cn-Converter-obsidian/releases/)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](#license)
 ![visitor badge](https://visitor-badge.laobi.icu/badge?page_id=s2031215.zh2cn-Converter-obsidian)
+[![Downloads](https://img.shields.io/github/downloads/s2031215/zh2cn-Converter-obsidian/total?label=downloads)](https://github.com/s2031215/zh2cn-Converter-obsidian/releases/latest)
 # Obsidian 繁簡轉換插件(chinese-cn2zh-converter-plugin)
 
 基於OpenCC的Obsidian繁簡轉換插件
